@@ -1,6 +1,7 @@
 package com.example.library.services;
 
 import com.example.library.models.Author;
+import com.example.library.models.Book;
 import com.example.library.repos.AuthorRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,13 @@ public class AuthorService {
         return authorRepository.save(author);
     }
 
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         authorRepository.deleteById(id);
+    }
+    public boolean existsById(Long id) {
+        return authorRepository.existsById(id);
+    }
+    public List<Author> readByName(String name) {
+        return authorRepository.findByNameContainingIgnoreCase(name);
     }
 }

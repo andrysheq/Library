@@ -6,6 +6,7 @@ import com.example.library.models.Author;
 import com.example.library.models.Book;
 import com.example.library.repos.AuthorRepository;
 import com.example.library.services.AuthorService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,27 +22,35 @@ public class AuthorController {
         this.authorService = authorService;
     }
 
-    @GetMapping("/authors/sortedByGender")
-    public List<Author> getSortedAuthorsByGender() {
-        List<Author> authors = authorService.readAll();
-        authors.sort(Comparator.comparing(Author::getGender));
-        return authors;
-    }
-
     @GetMapping()
     public List<Author> getAuthors() {
         return authorService.readAll();
     }
 
-    @GetMapping("/authors/{id}")
+    @GetMapping("/{id}")
     public Author getAuthorById(@PathVariable Long id) {
         return authorService.readById(id);
     }
-    @GetMapping("/authors/sortedByName")
-    public List<Author> getSortedAuthorsByName() {
+    @GetMapping("/by-title")
+    public ResponseEntity<?> getSortedAuthorsByName() {
         List<Author> authors = authorService.readAll();
-        authors.sort(Comparator.comparing(Author::getName));
-        return authors;
+        if (!authors.isEmpty()) {
+            authors.sort(Comparator.comparing(Author::getName));
+            return ResponseEntity.ok(authors);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/by-gender")
+    public ResponseEntity<?> getSortedAuthorsByGender() {
+        List<Author> authors = authorService.readAll();
+        if (!authors.isEmpty()) {
+            authors.sort(Comparator.comparing(Author::getGender));
+            return ResponseEntity.ok(authors);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
     @PostMapping()
     public Author createAuthor(@RequestBody AuthorDTO authorDTO) {
@@ -49,5 +58,24 @@ public class AuthorController {
         author.setName(authorDTO.getName());
         author.setGender(authorDTO.getGender());
         return authorService.update(author);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAuthorById(@PathVariable Long id) {
+        if (!authorService.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        authorService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/search/by-name")
+    public ResponseEntity<?> searchAuthorByName(@RequestParam String name) {
+        List<Author> authors = authorService.readByName(name);
+        if (!authors.isEmpty()) {
+            return ResponseEntity.ok(authors);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

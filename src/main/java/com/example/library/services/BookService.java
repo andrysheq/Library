@@ -29,7 +29,11 @@ public class BookService {
         return bookRepository.save(book);
     }
 
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         bookRepository.deleteById(id);
+    }
+
+    public boolean existsById(Long id) {
+        return bookRepository.existsById(id);
     }
 }
