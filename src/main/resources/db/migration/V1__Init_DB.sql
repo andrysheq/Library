@@ -11,8 +11,8 @@ CREATE TABLE book (
 
 CREATE TABLE book_authors (
       book_id bigint NOT NULL,
-      authors_id bigint NOT NULL,
-      CONSTRAINT FK551i3sllw1wj7ex6nir16blsm FOREIGN KEY (authors_id) REFERENCES author,
+      author_id bigint NOT NULL,
+      CONSTRAINT FK551i3sllw1wj7ex6nir16blsm FOREIGN KEY (author_id) REFERENCES author,
       CONSTRAINT FKs4xm7q8i3uxvaiswj1c35nnxw FOREIGN KEY (book_id) REFERENCES book
 );
 

@@ -1,9 +1,13 @@
 package com.example.library.dto;
 
-import java.util.List;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.List;
+@Schema(description = "Информация о книге")
 public class BookDTO {
+    @Schema(description = "название книги")
     private String title;
+    @Schema(description = "ID авторов, работавших над книгой")
     private List<Long> authorIds;
 
     public String getTitle() {

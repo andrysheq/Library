@@ -1,7 +1,11 @@
 package com.example.library.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+@Schema(description = "Информация о авторе")
 public class AuthorDTO {
+    @Schema(description = "Имя автора")
     private String name;
+    @Schema(description = "Пол автора")
     private String gender;
 
     public String getName() {

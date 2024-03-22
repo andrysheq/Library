@@ -1,16 +1,25 @@
 package com.example.library.models;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import java.util.List;
 
+@Schema(description = "Книга")
 @Entity
 public class Book {
+    @Schema(description = "ID книги")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Schema(description = "Название книги")
     private String title;
-
-    @ManyToMany
+    @Schema(description = "Авторы книги")
+    @ManyToMany(cascade = CascadeType.REMOVE)
+    @JoinTable(
+            name = "book_authors",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
     private List<Author> authors;
 
     public Book() {

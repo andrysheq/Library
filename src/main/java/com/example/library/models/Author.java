@@ -1,17 +1,24 @@
 package com.example.library.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 
+import java.util.List;
+
+@Schema(description = "Автор")
 @Entity
 public class Author {
+    @Schema(description = "ID автора")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Schema(description = "Имя автора")
     private String name;
+    @Schema(description = "Пол автора")
     private String gender;
+    @Schema(description = "Книги автора")
+    @ManyToMany(mappedBy = "authors", cascade = CascadeType.REMOVE)
+    private List<Book> books;
 
     public Author() {
     }
