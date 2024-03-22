@@ -17,7 +17,7 @@ public class Author {
     @Schema(description = "Пол автора")
     private String gender;
     @Schema(description = "Книги автора")
-    @ManyToMany(mappedBy = "authors", cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "authors")//, cascade = CascadeType.REMOVE)
     private List<Book> books;
 
     public Author() {

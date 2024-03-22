@@ -14,7 +14,7 @@ public class Book {
     @Schema(description = "Название книги")
     private String title;
     @Schema(description = "Авторы книги")
-    @ManyToMany(cascade = CascadeType.REMOVE)
+    @ManyToMany()//cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "book_authors",
             joinColumns = @JoinColumn(name = "book_id"),
