@@ -33,9 +33,16 @@ public class AuthorService {
     }
     @Transactional
     public void deleteById(Long id) {
-        entityManager.createQuery("DELETE FROM Book b WHERE :authorId IN (SELECT a.id FROM b.authors a)")
-                .setParameter("authorId", id)
-                .executeUpdate();
+        List<Book> allBooks = entityManager.createQuery("SELECT b FROM Book b", Book.class).getResultList();
+
+
+        Author authorToRemove = entityManager.find(Author.class, id);
+
+        allBooks.forEach(o->{
+            o.getAuthors().remove(authorToRemove);
+            entityManager.merge(o);
+        });
+
         authorRepository.deleteById(id);
     }
     public boolean existsById(Long id) {

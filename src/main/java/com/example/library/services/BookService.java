@@ -36,4 +36,8 @@ public class BookService {
     public boolean existsById(Long id) {
         return bookRepository.existsById(id);
     }
+
+    public void clear(){
+        bookRepository.deleteAll();
+    }
 }

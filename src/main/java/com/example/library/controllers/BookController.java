@@ -103,4 +103,16 @@ public class BookController {
         bookService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping()
+    @Operation(summary = "Удалить все книги")
+    @ApiResponse(responseCode = "204", description = "Книги успешно удалена")
+    @ApiResponse(responseCode = "404", description = "Книги не найдена")
+    public ResponseEntity<?> deleteAllBooks() {
+        if (bookService.readAll().isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        bookService.clear();
+        return ResponseEntity.noContent().build();
+    }
 }
