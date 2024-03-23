@@ -51,4 +51,8 @@ public class AuthorService {
     public List<Author> readByName(String name) {
         return authorRepository.findByNameContainingIgnoreCase(name);
     }
+
+    public void clear(){
+        authorRepository.deleteAll();
+    }
 }

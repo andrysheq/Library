@@ -122,4 +122,16 @@ public class AuthorController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @DeleteMapping("/")
+    @ApiResponse(responseCode = "204", description = "Авторы успешно удалены")
+    @ApiResponse(responseCode = "404", description = "Авторы не найдены")
+    @Operation(summary = "Удалить всех авторов")
+    public ResponseEntity<?> deleteAllAuthors() {
+        if (authorService.readAll().isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        authorService.clear();
+        return ResponseEntity.ok().build();
+    }
 }
