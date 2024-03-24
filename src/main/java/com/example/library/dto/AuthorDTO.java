@@ -1,11 +1,15 @@
 package com.example.library.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+
 @Schema(description = "Информация о авторе")
 public class AuthorDTO {
     @Schema(description = "Имя автора")
+    @NotNull
     private String name;
     @Schema(description = "Пол автора")
+    @NotNull
     private String gender;
 
     public String getName() {

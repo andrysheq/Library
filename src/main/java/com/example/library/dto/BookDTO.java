@@ -1,13 +1,17 @@
 package com.example.library.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 @Schema(description = "Информация о книге")
 public class BookDTO {
-    @Schema(description = "название книги")
+    @Schema(description = "Название книги")
+    @NotNull
     private String title;
+
     @Schema(description = "ID авторов, работавших над книгой")
+    @NotNull
     private List<Long> authorIds;
 
     public String getTitle() {

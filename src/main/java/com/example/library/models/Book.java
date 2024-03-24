@@ -2,6 +2,8 @@ package com.example.library.models;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 @Schema(description = "Книга")
@@ -12,6 +14,7 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Schema(description = "Название книги")
+    @NotNull
     private String title;
     @Schema(description = "Авторы книги")
     @ManyToMany()//cascade = CascadeType.REMOVE)

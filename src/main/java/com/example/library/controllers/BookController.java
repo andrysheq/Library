@@ -1,5 +1,6 @@
 package com.example.library.controllers;
 
+import com.example.library.dto.AuthorDTO;
 import com.example.library.dto.BookDTO;
 import com.example.library.models.Author;
 import com.example.library.models.Book;
@@ -79,15 +80,7 @@ public class BookController {
     @ApiResponse(responseCode = "400", description = "Некорректный запрос")
     public ResponseEntity<Book> createBook(
             @RequestBody BookDTO bookDTO) {
-        Book book = new Book();
-        List<Author> authors = new ArrayList<>();
-        book.setTitle(bookDTO.getTitle());
-        bookDTO.getAuthorIds().forEach(authorId -> {
-            authors.add(authorService.readById(authorId));
-        });
-        book.setAuthors(authors);
-        Book createdBook = bookService.update(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.create(bookDTO));
     }
 
     @DeleteMapping("/{id}")
@@ -106,13 +99,27 @@ public class BookController {
 
     @DeleteMapping()
     @Operation(summary = "Удалить все книги")
-    @ApiResponse(responseCode = "204", description = "Книги успешно удалена")
-    @ApiResponse(responseCode = "404", description = "Книги не найдена")
+    @ApiResponse(responseCode = "204", description = "Книги успешно удалены")
+//    @ApiResponse(responseCode = "404", description = "Книги не найдены")
     public ResponseEntity<?> deleteAllBooks() {
-        if (bookService.readAll().isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+//        if (bookService.readAll().isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
         bookService.clear();
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @ApiResponse(responseCode = "201", description = "Информация о книге обновлена")
+    @ApiResponse(responseCode = "404", description = "Книга не найдена")
+    @ApiResponse(responseCode = "400", description = "Некорректный запрос")
+    @Operation(summary = "Обновить информацию о книге")
+    public ResponseEntity<?> updateBook(@Parameter(description = "ID книги")
+                                          @PathVariable Long id,
+                                          @RequestBody BookDTO bookDTO) {
+        if(!bookService.existsById(id)){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(bookService.updateBookInformation(id,bookDTO));
     }
 }

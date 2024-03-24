@@ -86,12 +86,8 @@ public class AuthorController {
     @ApiResponse(responseCode = "400", description = "Некорректный запрос")
     @Operation(summary = "Добавить нового автора")
     public Author createAuthor(
-//            @Parameter(description = "JSON автора")
             @RequestBody AuthorDTO authorDTO) {
-        Author author = new Author();
-        author.setName(authorDTO.getName());
-        author.setGender(authorDTO.getGender());
-        return authorService.update(author);
+        return authorService.create(authorDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -133,5 +129,19 @@ public class AuthorController {
         }
         authorService.clear();
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}")
+    @ApiResponse(responseCode = "201", description = "Информация об авторе обновлена")
+    @ApiResponse(responseCode = "404", description = "Автор не найден")
+    @ApiResponse(responseCode = "400", description = "Некорректный запрос")
+    @Operation(summary = "Обновить информацию об авторе")
+    public ResponseEntity<?> updateAuthor(@Parameter(description = "ID автора")
+                                                  @PathVariable Long id,
+                                                  @RequestBody AuthorDTO authorDTO) {
+        if(!authorService.existsById(id)){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(authorService.updateAuthorInformation(id,authorDTO));
     }
 }

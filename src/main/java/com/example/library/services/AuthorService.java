@@ -1,5 +1,6 @@
 package com.example.library.services;
 
+import com.example.library.dto.AuthorDTO;
 import com.example.library.models.Author;
 import com.example.library.models.Book;
 import com.example.library.repos.AuthorRepository;
@@ -7,7 +8,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
 
 @Service
@@ -54,5 +54,20 @@ public class AuthorService {
 
     public void clear(){
         authorRepository.deleteAll();
+    }
+
+    public Author updateAuthorInformation(Long id, AuthorDTO authorDTO) {
+        Author author = authorRepository.findById(id).orElse(null);
+        author.setName(authorDTO.getName());
+        author.setGender(authorDTO.getGender());
+
+        return authorRepository.save(author);
+    }
+
+    public Author create(AuthorDTO authorDTO){
+        Author author = new Author();
+        author.setName(authorDTO.getName());
+        author.setGender(authorDTO.getGender());
+        return authorRepository.save(author);
     }
 }
