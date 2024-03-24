@@ -26,10 +26,8 @@ import java.util.List;
 )
 public class BookController {
     private final BookService bookService;
-    private final AuthorService authorService;
 
-    public BookController(BookService bookService, AuthorService authorService) {
-        this.authorService = authorService;
+    public BookController(BookService bookService) {
         this.bookService = bookService;
     }
     @GetMapping()
@@ -38,6 +36,7 @@ public class BookController {
     @Operation(summary = "Получить список книг")
     public ResponseEntity<?> getBooks() {
         List<Book> books = bookService.readAll();
+        //Проверка на пустоту списка
         if (!books.isEmpty()) {
             return ResponseEntity.ok(books);
         } else {
@@ -80,7 +79,16 @@ public class BookController {
     @ApiResponse(responseCode = "400", description = "Некорректный запрос")
     public ResponseEntity<Book> createBook(
             @RequestBody BookDTO bookDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.create(bookDTO));
+        //Проверка пустоты полей
+        if (bookDTO.getAuthorIds() == null || bookDTO.getAuthorIds().isEmpty() || bookDTO.getTitle().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Book createdBook = bookService.create(bookDTO);
+        //Получим null, если авторы, указанные в запросе не будут существовать
+        if (createdBook==null){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(createdBook);
     }
 
     @DeleteMapping("/{id}")
@@ -100,11 +108,11 @@ public class BookController {
     @DeleteMapping()
     @Operation(summary = "Удалить все книги")
     @ApiResponse(responseCode = "204", description = "Книги успешно удалены")
-//    @ApiResponse(responseCode = "404", description = "Книги не найдены")
+    @ApiResponse(responseCode = "404", description = "Книги не найдены")
     public ResponseEntity<?> deleteAllBooks() {
-//        if (bookService.readAll().isEmpty()) {
-//            return ResponseEntity.notFound().build();
-//        }
+        if (bookService.readAll().isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         bookService.clear();
         return ResponseEntity.noContent().build();
     }
@@ -117,9 +125,19 @@ public class BookController {
     public ResponseEntity<?> updateBook(@Parameter(description = "ID книги")
                                           @PathVariable Long id,
                                           @RequestBody BookDTO bookDTO) {
+        //Проверка существует ли книга
         if(!bookService.existsById(id)){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(bookService.updateBookInformation(id,bookDTO));
+        //Проверка пустоты полей
+        if (bookDTO.getAuthorIds() == null || bookDTO.getAuthorIds().isEmpty() || bookDTO.getTitle().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Book updatedBook = bookService.updateBookInformation(id,bookDTO);
+        //Получим null, если авторы, указанные в запросе, не будут существовать
+        if (updatedBook==null){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(updatedBook);
     }
 }

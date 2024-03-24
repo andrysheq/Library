@@ -27,6 +27,8 @@ public class AuthorService {
     public Author readById(Long id) {
         return authorRepository.findById(id).orElse(null);
     }
+
+    //Используем для удаления связей у авторов и книг (при удалении автора, у всех книг удаляется этот автор)
     @Transactional
     public void deleteById(Long id) {
         List<Book> allBooks = entityManager.createQuery("SELECT b FROM Book b", Book.class).getResultList();
@@ -54,6 +56,7 @@ public class AuthorService {
 
     public Author updateAuthorInformation(Long id, AuthorDTO authorDTO) {
         Author author = authorRepository.findById(id).orElse(null);
+        //Не может быть null, так как проверяем в контроллере, перед тем как вызвать метод
         author.setName(authorDTO.getName());
         author.setGender(authorDTO.getGender());
 

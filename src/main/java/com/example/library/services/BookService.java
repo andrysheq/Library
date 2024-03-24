@@ -49,8 +49,12 @@ public class BookService {
                 if(authorService.existsById(o))
                     newAuthors.add(authorService.readById(o));
             });
-            bookToUpdate.setAuthors(newAuthors);
-            return bookRepository.save(bookToUpdate);
+            if (!newAuthors.isEmpty()) {
+                bookToUpdate.setAuthors(newAuthors);
+                return bookRepository.save(bookToUpdate);
+            }else{
+                return null;
+            }
         }
         return null;
     }
@@ -63,7 +67,11 @@ public class BookService {
             if(authorService.existsById(o))
                 authors.add(authorService.readById(o));
         });
-        book.setAuthors(authors);
-        return bookRepository.save(book);
+        if (!authors.isEmpty()) {
+            book.setAuthors(authors);
+            return bookRepository.save(book);
+        }else{
+            return null;
+        }
     }
 }

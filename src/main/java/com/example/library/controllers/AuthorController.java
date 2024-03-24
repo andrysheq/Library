@@ -46,9 +46,8 @@ public class AuthorController {
     public ResponseEntity<Author> getAuthorById(
             @Parameter(description = "ID автора")
             @PathVariable Long id) {
-        Author author = authorService.readById(id);
-        if (author != null) {
-            return ResponseEntity.ok(author);
+        if (authorService.existsById(id)) {
+            return ResponseEntity.ok(authorService.readById(id));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -60,6 +59,7 @@ public class AuthorController {
     @Operation(summary = "Получить список авторов отсортированный по имени")
     public ResponseEntity<?> getSortedAuthorsByName() {
         List<Author> authors = authorService.readAll();
+        //Проверка на пустоту списка авторов
         if (!authors.isEmpty()) {
             authors.sort(Comparator.comparing(Author::getName));
             return ResponseEntity.ok(authors);
@@ -74,6 +74,7 @@ public class AuthorController {
     @Operation(summary = "Получить список авторов отсортированный по полу")
     public ResponseEntity<?> getSortedAuthorsByGender() {
         List<Author> authors = authorService.readAll();
+        //Проверка на пустоту списка авторов
         if (!authors.isEmpty()) {
             authors.sort(Comparator.comparing(Author::getGender));
             return ResponseEntity.ok(authors);
@@ -85,9 +86,13 @@ public class AuthorController {
     @ApiResponse(responseCode = "201", description = "Автор успешно добавлен")
     @ApiResponse(responseCode = "400", description = "Некорректный запрос")
     @Operation(summary = "Добавить нового автора")
-    public Author createAuthor(
+    public ResponseEntity<?> createAuthor(
             @RequestBody AuthorDTO authorDTO) {
-        return authorService.create(authorDTO);
+        //Проверка пустоты полей
+        if (authorDTO.getGender().isEmpty() || authorDTO.getName().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(authorService.create(authorDTO));
     }
 
     @DeleteMapping("/{id}")
@@ -97,6 +102,7 @@ public class AuthorController {
     public ResponseEntity<?> deleteAuthorById(
             @Parameter(description = "ID автора")
             @PathVariable Long id) {
+        //Проверка существует ли автор
         if (!authorService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -112,6 +118,7 @@ public class AuthorController {
             @Parameter(description = "Имя автора")
             @RequestParam String name) {
         List<Author> authors = authorService.readByName(name);
+        //Проверка на пустоту списка авторов
         if (!authors.isEmpty()) {
             return ResponseEntity.ok(authors);
         } else {
@@ -124,6 +131,7 @@ public class AuthorController {
     @ApiResponse(responseCode = "404", description = "Авторы не найдены")
     @Operation(summary = "Удалить всех авторов")
     public ResponseEntity<?> deleteAllAuthors() {
+        //Проверка на пустоту списка авторов
         if (authorService.readAll().isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -139,8 +147,13 @@ public class AuthorController {
     public ResponseEntity<?> updateAuthor(@Parameter(description = "ID автора")
                                                   @PathVariable Long id,
                                                   @RequestBody AuthorDTO authorDTO) {
+        //Проверка на существование автора
         if(!authorService.existsById(id)){
             return ResponseEntity.notFound().build();
+        }
+        //Проверка на пустоту полей
+        if (authorDTO.getGender().isEmpty() || authorDTO.getName().isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(authorService.updateAuthorInformation(id,authorDTO));
     }
