@@ -27,10 +27,6 @@ public class AuthorService {
     public Author readById(Long id) {
         return authorRepository.findById(id).orElse(null);
     }
-
-    public Author update(Author author) {
-        return authorRepository.save(author);
-    }
     @Transactional
     public void deleteById(Long id) {
         List<Book> allBooks = entityManager.createQuery("SELECT b FROM Book b", Book.class).getResultList();

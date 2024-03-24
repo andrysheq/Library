@@ -28,10 +28,6 @@ public class BookService {
         return bookRepository.findById(id).orElse(null);
     }
 
-    public Book update(Book book) {
-        return bookRepository.save(book);
-    }
-
     public void deleteById(Long id) {
         bookRepository.deleteById(id);
     }
@@ -46,9 +42,7 @@ public class BookService {
 
     public Book updateBookInformation(Long id, BookDTO bookDTO) {
         Book bookToUpdate = bookRepository.findById(id).orElse(null);
-        // Проверяем, найдена ли книга
         if (bookToUpdate != null) {
-            // Обновляем информацию о книге с использованием данных из DTO
             bookToUpdate.setTitle(bookDTO.getTitle());
             List<Author> newAuthors = new ArrayList<>();
             bookDTO.getAuthorIds().forEach(o-> {
@@ -56,7 +50,6 @@ public class BookService {
                     newAuthors.add(authorService.readById(o));
             });
             bookToUpdate.setAuthors(newAuthors);
-            // Сохраняем обновленную информацию о книге в базе данных
             return bookRepository.save(bookToUpdate);
         }
         return null;
