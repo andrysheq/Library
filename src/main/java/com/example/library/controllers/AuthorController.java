@@ -31,7 +31,7 @@ public class AuthorController {
     @ApiResponse(responseCode = "200", description = "Список авторов получен")
     @ApiResponse(responseCode = "404", description = "Список авторов пуст")
     public ResponseEntity<List<AuthorEntity>> getAuthors() {
-        List<AuthorEntity> authorEntities = authorService.readAll();
+        List<AuthorEntity> authorEntities = authorService.getAllAuthors();
         if (!authorEntities.isEmpty()) {
             return ResponseEntity.ok(authorEntities);
         } else {
@@ -47,7 +47,7 @@ public class AuthorController {
             @Parameter(description = "ID автора")
             @PathVariable Long id) {
         if (authorService.existsById(id)) {
-            return ResponseEntity.ok(authorService.readById(id));
+            return ResponseEntity.ok(authorService.getAuthor(id));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -58,7 +58,7 @@ public class AuthorController {
     @ApiResponse(responseCode = "404", description = "Список авторов пуст")
     @Operation(summary = "Получить список авторов отсортированный по имени")
     public ResponseEntity<?> getSortedAuthorsByName() {
-        List<AuthorEntity> authorEntities = authorService.readAll();
+        List<AuthorEntity> authorEntities = authorService.getAllAuthors();
         //Проверка на пустоту списка авторов
         if (!authorEntities.isEmpty()) {
             authorEntities.sort(Comparator.comparing(AuthorEntity::getName));
@@ -73,7 +73,7 @@ public class AuthorController {
     @ApiResponse(responseCode = "404", description = "Список авторов пуст")
     @Operation(summary = "Получить список авторов отсортированный по полу")
     public ResponseEntity<?> getSortedAuthorsByGender() {
-        List<AuthorEntity> authorEntities = authorService.readAll();
+        List<AuthorEntity> authorEntities = authorService.getAllAuthors();
         //Проверка на пустоту списка авторов
         if (!authorEntities.isEmpty()) {
             authorEntities.sort(Comparator.comparing(AuthorEntity::getGender));
@@ -92,7 +92,7 @@ public class AuthorController {
         if (author.getGender().isEmpty() || author.getName().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(authorService.create(author));
+        return ResponseEntity.ok(authorService.addAuthor(author));
     }
 
     @DeleteMapping("/{id}")
@@ -132,7 +132,7 @@ public class AuthorController {
     @Operation(summary = "Удалить всех авторов")
     public ResponseEntity<?> deleteAllAuthors() {
         //Проверка на пустоту списка авторов
-        if (authorService.readAll().isEmpty()) {
+        if (authorService.getAllAuthors().isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         authorService.clear();
@@ -155,6 +155,6 @@ public class AuthorController {
         if (author.getGender().isEmpty() || author.getName().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(authorService.updateAuthorInformation(id, author));
+        return ResponseEntity.ok(authorService.updateAuthor(id, author));
     }
 }

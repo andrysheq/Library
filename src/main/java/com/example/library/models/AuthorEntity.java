@@ -10,8 +10,8 @@ import lombok.*;
 @Table(name = "author")
 @Getter
 @Setter
-@EqualsAndHashCode
 @Builder
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor

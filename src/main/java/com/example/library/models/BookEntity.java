@@ -6,13 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Schema(name = "Книга")
 @Entity
 @Table(name = "book")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,5 +35,5 @@ public class BookEntity {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )
-    private List<AuthorEntity> authorEntities;
+    private Set<AuthorEntity> authorEntities;
 }

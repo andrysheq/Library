@@ -2,71 +2,50 @@ package com.example.library.service;
 
 import com.example.library.dto.Author;
 import com.example.library.models.AuthorEntity;
-import com.example.library.models.BookEntity;
-import com.example.library.repos.AuthorRepository;
+import com.example.library.service.repo.AuthorRepoService;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Log4j2
 public class AuthorService {
     private final EntityManager entityManager;
-    private final AuthorRepository authorRepository;
+    private final AuthorRepoService authorRepoService;
 
-    public AuthorService(AuthorRepository authorRepository, EntityManager entityManager) {
-        this.authorRepository = authorRepository;
-        this.entityManager = entityManager;
+    public List<AuthorEntity> getAllAuthors() {
+        return authorRepoService.findAll();
     }
 
-    public List<AuthorEntity> readAll() {
-        return authorRepository.findAll();
-    }
-
-    public AuthorEntity readById(Long id) {
-        return authorRepository.findById(id).orElse(null);
+    public AuthorEntity getAuthor(Long id) {
+        return authorRepoService.findById(id);
     }
 
     //Используем для удаления связей у авторов и книг (при удалении автора, у всех книг удаляется этот автор)
-    @Transactional
-    public void deleteById(Long id) {
-        List<BookEntity> allBookEntities = entityManager.createQuery("SELECT b FROM BookEntity b", BookEntity.class).getResultList();
+//    @Transactional
+//    public void deleteById(Long id) {
+//        List<BookEntity> allBookEntities = entityManager.createQuery("SELECT b FROM BookEntity b", BookEntity.class).getResultList();
+//
+//
+//        AuthorEntity authorEntityToRemove = entityManager.find(AuthorEntity.class, id);
+//
+//        allBookEntities.forEach(o->{
+//            o.getAuthorEntities().remove(authorEntityToRemove);
+//            entityManager.merge(o);
+//        });
+//
+//        authorRepository.deleteById(id);
+//    }
 
-
-        AuthorEntity authorEntityToRemove = entityManager.find(AuthorEntity.class, id);
-
-        allBookEntities.forEach(o->{
-            o.getAuthorEntities().remove(authorEntityToRemove);
-            entityManager.merge(o);
-        });
-
-        authorRepository.deleteById(id);
-    }
-    public boolean existsById(Long id) {
-        return authorRepository.existsById(id);
-    }
-    public List<AuthorEntity> readByName(String name) {
-        return authorRepository.findByNameContainingIgnoreCase(name);
+    public Author updateAuthor(Author author) {
+        return authorRepoService.updateAuthor(author);
     }
 
-    public void clear(){
-        authorRepository.deleteAll();
-    }
-
-    public AuthorEntity updateAuthorInformation(Long id, Author author) {
-        AuthorEntity authorEntity = authorRepository.findById(id).orElse(null);
-        //Не может быть null, так как проверяем в контроллере, перед тем как вызвать метод
-        authorEntity.setName(author.getName());
-        authorEntity.setGender(author.getGender());
-
-        return authorRepository.save(authorEntity);
-    }
-
-    public AuthorEntity create(Author author){
-        AuthorEntity authorEntity = new AuthorEntity();
-        authorEntity.setName(author.getName());
-        authorEntity.setGender(author.getGender());
-        return authorRepository.save(authorEntity);
+    public Author addAuthor(Author author){
+        return authorRepoService.saveAuthor(author);
     }
 }
