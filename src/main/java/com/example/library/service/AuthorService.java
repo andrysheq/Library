@@ -1,8 +1,8 @@
-package com.example.library.services;
+package com.example.library.service;
 
-import com.example.library.dto.AuthorDTO;
-import com.example.library.models.Author;
-import com.example.library.models.Book;
+import com.example.library.dto.Author;
+import com.example.library.models.AuthorEntity;
+import com.example.library.models.BookEntity;
 import com.example.library.repos.AuthorRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -20,24 +20,24 @@ public class AuthorService {
         this.entityManager = entityManager;
     }
 
-    public List<Author> readAll() {
+    public List<AuthorEntity> readAll() {
         return authorRepository.findAll();
     }
 
-    public Author readById(Long id) {
+    public AuthorEntity readById(Long id) {
         return authorRepository.findById(id).orElse(null);
     }
 
     //Используем для удаления связей у авторов и книг (при удалении автора, у всех книг удаляется этот автор)
     @Transactional
     public void deleteById(Long id) {
-        List<Book> allBooks = entityManager.createQuery("SELECT b FROM Book b", Book.class).getResultList();
+        List<BookEntity> allBookEntities = entityManager.createQuery("SELECT b FROM BookEntity b", BookEntity.class).getResultList();
 
 
-        Author authorToRemove = entityManager.find(Author.class, id);
+        AuthorEntity authorEntityToRemove = entityManager.find(AuthorEntity.class, id);
 
-        allBooks.forEach(o->{
-            o.getAuthors().remove(authorToRemove);
+        allBookEntities.forEach(o->{
+            o.getAuthorEntities().remove(authorEntityToRemove);
             entityManager.merge(o);
         });
 
@@ -46,7 +46,7 @@ public class AuthorService {
     public boolean existsById(Long id) {
         return authorRepository.existsById(id);
     }
-    public List<Author> readByName(String name) {
+    public List<AuthorEntity> readByName(String name) {
         return authorRepository.findByNameContainingIgnoreCase(name);
     }
 
@@ -54,19 +54,19 @@ public class AuthorService {
         authorRepository.deleteAll();
     }
 
-    public Author updateAuthorInformation(Long id, AuthorDTO authorDTO) {
-        Author author = authorRepository.findById(id).orElse(null);
+    public AuthorEntity updateAuthorInformation(Long id, Author author) {
+        AuthorEntity authorEntity = authorRepository.findById(id).orElse(null);
         //Не может быть null, так как проверяем в контроллере, перед тем как вызвать метод
-        author.setName(authorDTO.getName());
-        author.setGender(authorDTO.getGender());
+        authorEntity.setName(author.getName());
+        authorEntity.setGender(author.getGender());
 
-        return authorRepository.save(author);
+        return authorRepository.save(authorEntity);
     }
 
-    public Author create(AuthorDTO authorDTO){
-        Author author = new Author();
-        author.setName(authorDTO.getName());
-        author.setGender(authorDTO.getGender());
-        return authorRepository.save(author);
+    public AuthorEntity create(Author author){
+        AuthorEntity authorEntity = new AuthorEntity();
+        authorEntity.setName(author.getName());
+        authorEntity.setGender(author.getGender());
+        return authorRepository.save(authorEntity);
     }
 }
