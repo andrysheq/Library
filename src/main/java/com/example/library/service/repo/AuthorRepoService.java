@@ -13,7 +13,8 @@ import java.util.Set;
 public interface AuthorRepoService {
     AuthorEntity findById(Long id);
     Author saveAuthor(Author author);
-    Author updateAuthor(Author author);
+    Author updateAuthor(AuthorEntity authorEntity);
     List<AuthorEntity> findByIds(Iterable<Long> ids);
     List<AuthorEntity> findAll();
+    void deleteById(Long id);
 }

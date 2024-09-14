@@ -1,160 +1,224 @@
 package com.example.library.controllers;
 
 import com.example.library.dto.Author;
-import com.example.library.models.AuthorEntity;
+import com.example.library.dto.error.ErrorResponse;
+import com.example.library.dto.request.Request;
+import com.example.library.dto.response.FindAuthorsResponse;
 import com.example.library.service.AuthorService;
+import com.example.library.utils.RestUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
-import java.util.List;
-
 @RestController
-@RequestMapping("/authors")
+@Log4j2
+@RequiredArgsConstructor
+@RequestMapping()
 @Tag(
         name = "Контроллер для работы с авторами",
         description = "Все методы для работы с авторами"
 )
 public class AuthorController {
+    private static final String AUTHORS_URL = "/authors";
+    private static final String AUTHORS_ID_URL = "/authors/{id}";
     private final AuthorService authorService;
 
-    public AuthorController(AuthorService authorService) {
-        this.authorService = authorService;
+    @Operation(
+            summary = "Получить список авторов"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = FindAuthorsResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    public ResponseEntity<FindAuthorsResponse> getAllAuthors() {
+
+        return RestUtils.responseOf(authorService::findAllAuthors);
     }
 
-    @GetMapping()
-    @Operation(summary = "Получить список всех авторов")
-    @ApiResponse(responseCode = "200", description = "Список авторов получен")
-    @ApiResponse(responseCode = "404", description = "Список авторов пуст")
-    public ResponseEntity<List<AuthorEntity>> getAuthors() {
-        List<AuthorEntity> authorEntities = authorService.getAllAuthors();
-        if (!authorEntities.isEmpty()) {
-            return ResponseEntity.ok(authorEntities);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @Operation(
+            summary = "Получить автора по ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Author.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    @GetMapping(
+            path = AUTHORS_ID_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Author> getAuthor(
+            @PathVariable(name = "id") Long authorId) {
+
+        return RestUtils.responseOf(() -> authorService.getAuthor(authorId));
     }
 
-    @GetMapping("/{id}")
-    @ApiResponse(responseCode = "200", description = "Автор найден")
-    @ApiResponse(responseCode = "404", description = "Автор не найден")
-    @Operation(summary = "Получить автора по его ID")
-    public ResponseEntity<AuthorEntity> getAuthorById(
+    @Operation(
+            summary = "Добавить автора"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Author.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    @PostMapping(
+            path = AUTHORS_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Author> addAuthor(
+            @Parameter(name = "Author", required = true) @Valid @RequestBody Request<Author> request) {
+
+        return RestUtils.responseOf(request, authorService::addAuthor);
+    }
+
+    @Operation(
+            summary = "Удалить автора по id"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    public ResponseEntity<Void> deleteAuthor(
             @Parameter(description = "ID автора")
             @PathVariable Long id) {
-        if (authorService.existsById(id)) {
-            return ResponseEntity.ok(authorService.getAuthor(id));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+
+        authorService.deleteAuthor(id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/sorted-by-name")
-    @ApiResponse(responseCode = "200", description = "Список авторов получен и отсортирован")
-    @ApiResponse(responseCode = "404", description = "Список авторов пуст")
-    @Operation(summary = "Получить список авторов отсортированный по имени")
-    public ResponseEntity<?> getSortedAuthorsByName() {
-        List<AuthorEntity> authorEntities = authorService.getAllAuthors();
-        //Проверка на пустоту списка авторов
-        if (!authorEntities.isEmpty()) {
-            authorEntities.sort(Comparator.comparing(AuthorEntity::getName));
-            return ResponseEntity.ok(authorEntities);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    @Operation(
+            summary = "Обновить информацию об авторе"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Author.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    @PutMapping(
+            path = AUTHORS_ID_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Author> updateAuthor(
+            @PathVariable(name = "id") Long authorId,
+            @Parameter(name = "Author", required = true) @Valid @RequestBody Request<Author> request) {
 
-    @GetMapping("/sorted-by-gender")
-    @ApiResponse(responseCode = "200", description = "Список авторов получен и отсортирован")
-    @ApiResponse(responseCode = "404", description = "Список авторов пуст")
-    @Operation(summary = "Получить список авторов отсортированный по полу")
-    public ResponseEntity<?> getSortedAuthorsByGender() {
-        List<AuthorEntity> authorEntities = authorService.getAllAuthors();
-        //Проверка на пустоту списка авторов
-        if (!authorEntities.isEmpty()) {
-            authorEntities.sort(Comparator.comparing(AuthorEntity::getGender));
-            return ResponseEntity.ok(authorEntities);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    @PostMapping()
-    @ApiResponse(responseCode = "201", description = "Автор успешно добавлен")
-    @ApiResponse(responseCode = "400", description = "Некорректный запрос")
-    @Operation(summary = "Добавить нового автора")
-    public ResponseEntity<?> createAuthor(
-            @RequestBody Author author) {
-        //Проверка пустоты полей
-        if (author.getGender().isEmpty() || author.getName().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(authorService.addAuthor(author));
-    }
-
-    @DeleteMapping("/{id}")
-    @ApiResponse(responseCode = "204", description = "Автор успешно удален")
-    @ApiResponse(responseCode = "404", description = "Автор не найден")
-    @Operation(summary = "Удалить автора по ID")
-    public ResponseEntity<?> deleteAuthorById(
-            @Parameter(description = "ID автора")
-            @PathVariable Long id) {
-        //Проверка существует ли автор
-        if (!authorService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        authorService.deleteById(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/search/by-name")
-    @Operation(summary = "Поиск авторов по имени")
-    @ApiResponse(responseCode = "200", description = "Авторы найдены")
-    @ApiResponse(responseCode = "404", description = "Авторы не найдены")
-    public ResponseEntity<?> searchAuthorByName(
-            @Parameter(description = "Имя автора")
-            @RequestParam String name) {
-        List<AuthorEntity> authorEntities = authorService.readByName(name);
-        //Проверка на пустоту списка авторов
-        if (!authorEntities.isEmpty()) {
-            return ResponseEntity.ok(authorEntities);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @DeleteMapping("/")
-    @ApiResponse(responseCode = "204", description = "Авторы успешно удалены")
-    @ApiResponse(responseCode = "404", description = "Авторы не найдены")
-    @Operation(summary = "Удалить всех авторов")
-    public ResponseEntity<?> deleteAllAuthors() {
-        //Проверка на пустоту списка авторов
-        if (authorService.getAllAuthors().isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        authorService.clear();
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}")
-    @ApiResponse(responseCode = "201", description = "Информация об авторе обновлена")
-    @ApiResponse(responseCode = "404", description = "Автор не найден")
-    @ApiResponse(responseCode = "400", description = "Некорректный запрос")
-    @Operation(summary = "Обновить информацию об авторе")
-    public ResponseEntity<?> updateAuthor(@Parameter(description = "ID автора")
-                                                  @PathVariable Long id,
-                                                  @RequestBody Author author) {
-        //Проверка на существование автора
-        if(!authorService.existsById(id)){
-            return ResponseEntity.notFound().build();
-        }
-        //Проверка на пустоту полей
-        if (author.getGender().isEmpty() || author.getName().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(authorService.updateAuthor(id, author));
+        return RestUtils.responseOf(request, req -> authorService.updateAuthor(authorId, req));
     }
 }

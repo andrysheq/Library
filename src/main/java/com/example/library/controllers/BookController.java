@@ -1,12 +1,27 @@
 package com.example.library.controllers;
 
+import com.example.library.dto.Author;
 import com.example.library.dto.Book;
+import com.example.library.dto.error.ErrorResponse;
+import com.example.library.dto.request.Request;
+import com.example.library.dto.response.FindAuthorsResponse;
+import com.example.library.dto.response.FindBooksResponse;
 import com.example.library.models.BookEntity;
+import com.example.library.service.AuthorService;
 import com.example.library.service.BookService;
+import com.example.library.utils.RestUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,125 +29,203 @@ import java.util.Comparator;
 import java.util.List;
 
 @RestController
+@Log4j2
+@RequiredArgsConstructor
 @RequestMapping("/books")
 @Tag(
     name = "Контроллер для работы с книгами",
     description = "Все методы для работы с книгами"
 )
 public class BookController {
+    private static final String BOOKS_URL = "/books";
+    private static final String BOOKS_ID_URL = "/books/{id}";
     private final BookService bookService;
 
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
-    }
-    @GetMapping()
-    @ApiResponse(responseCode = "200", description = "Список книг получен")
-    @ApiResponse(responseCode = "404", description = "Список книг пуст")
-    @Operation(summary = "Получить список книг")
-    public ResponseEntity<?> getBooks() {
-        List<BookEntity> bookEntities = bookService.readAll();
-        //Проверка на пустоту списка
-        if (!bookEntities.isEmpty()) {
-            return ResponseEntity.ok(bookEntities);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @Operation(
+            summary = "Получить список книг"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = FindBooksResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    public ResponseEntity<FindBooksResponse> getAllBooks() {
+
+        return RestUtils.responseOf(bookService::findAllBooks);
     }
 
-    @GetMapping("/sorted-by-title")
-    @ApiResponse(responseCode = "200", description = "Список книг получен  и отсортирован")
-    @ApiResponse(responseCode = "404", description = "Список книг пуст")
-    @Operation(summary = "Получить список книг, отсортированный по названию")
-    public ResponseEntity<?> getSortedBooksByName() {
-        List<BookEntity> bookEntities = bookService.readAll();
-        if (!bookEntities.isEmpty()) {
-            bookEntities.sort(Comparator.comparing(BookEntity::getTitle));
-            return ResponseEntity.ok(bookEntities);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @Operation(
+            summary = "Получить книгу по ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Book.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    @GetMapping(
+            path = BOOKS_ID_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Book> getBook(
+            @PathVariable(name = "id") Long bookId) {
+
+        return RestUtils.responseOf(() -> bookService.getBook(bookId));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Получить книгу по ID")
-    @ApiResponse(responseCode = "200", description = "Книга найдена")
-    @ApiResponse(responseCode = "404", description = "Книга не найдена")
-    public ResponseEntity<?> getBookById(
+    @Operation(
+            summary = "Добавить книгу"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Book.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    @PostMapping(
+            path = BOOKS_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Book> addBook(
+            @Parameter(name = "Book", required = true) @Valid @RequestBody Request<Book> request) {
+
+        return RestUtils.responseOf(request, bookService::addBook);
+    }
+
+    @Operation(
+            summary = "Удалить книгу по id"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    public ResponseEntity<Void> deleteBook(
             @Parameter(description = "ID книги")
             @PathVariable Long id) {
-        BookEntity bookEntity = bookService.readById(id);
-        if (bookEntity != null) {
-            return ResponseEntity.ok(bookEntity);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+
+        bookService.deleteBook(id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping()
-    @Operation(summary = "Добавить новую книгу")
-    @ApiResponse(responseCode = "201", description = "Книга успешно создана")
-    @ApiResponse(responseCode = "400", description = "Некорректный запрос")
-    public ResponseEntity<BookEntity> createBook(
-            @RequestBody Book book) {
-        //Проверка пустоты полей
-        if (book.getAuthorIds() == null || book.getAuthorIds().isEmpty() || book.getTitle().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        BookEntity createdBookEntity = bookService.create(book);
-        //Получим null, если авторы, указанные в запросе не будут существовать
-        if (createdBookEntity ==null){
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(createdBookEntity);
-    }
+    @Operation(
+            summary = "Обновить информацию о книге"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Book.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    @PutMapping(
+            path = BOOKS_ID_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Book> updateBook(
+            @PathVariable(name = "id") Long bookId,
+            @Parameter(name = "Book", required = true) @Valid @RequestBody Request<Book> request) {
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить книгу по ID")
-    @ApiResponse(responseCode = "204", description = "Книга успешно удалена")
-    @ApiResponse(responseCode = "404", description = "Книга не найдена")
-    public ResponseEntity<?> deleteBookById(
-            @Parameter(description = "ID книги")
-            @PathVariable Long id) {
-        if (!bookService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        bookService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping()
-    @Operation(summary = "Удалить все книги")
-    @ApiResponse(responseCode = "204", description = "Книги успешно удалены")
-    @ApiResponse(responseCode = "404", description = "Книги не найдены")
-    public ResponseEntity<?> deleteAllBooks() {
-        if (bookService.readAll().isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        bookService.clear();
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/{id}")
-    @ApiResponse(responseCode = "201", description = "Информация о книге обновлена")
-    @ApiResponse(responseCode = "404", description = "Книга не найдена")
-    @ApiResponse(responseCode = "400", description = "Некорректный запрос")
-    @Operation(summary = "Обновить информацию о книге")
-    public ResponseEntity<?> updateBook(@Parameter(description = "ID книги")
-                                          @PathVariable Long id,
-                                          @RequestBody Book book) {
-        //Проверка существует ли книга
-        if(!bookService.existsById(id)){
-            return ResponseEntity.notFound().build();
-        }
-        //Проверка пустоты полей
-        if (book.getAuthorIds() == null || book.getAuthorIds().isEmpty() || book.getTitle().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        BookEntity updatedBookEntity = bookService.updateBookInformation(id, book);
-        //Получим null, если авторы, указанные в запросе, не будут существовать
-        if (updatedBookEntity ==null){
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(updatedBookEntity);
+        return RestUtils.responseOf(request, req -> bookService.updateBook(bookId, req));
     }
 }

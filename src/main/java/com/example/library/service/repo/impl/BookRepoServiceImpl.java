@@ -54,8 +54,19 @@ public class BookRepoServiceImpl implements BookRepoService {
 
     @Override
     @Transactional
-    public Book updateBook(Book book) {
-        BookEntity bookEntity = mapper.map(book, BookEntity.class);
+    public Book updateBook(BookEntity bookEntity) {
         return mapper.map(bookRepository.saveAndFlush(bookEntity), Book.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookEntity> findAll() {
+        return bookRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        bookRepository.deleteById(id);
     }
 }

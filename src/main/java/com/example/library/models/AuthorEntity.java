@@ -10,10 +10,7 @@ import lombok.*;
 @Table(name = "author")
 @Getter
 @Setter
-@Builder
 @EqualsAndHashCode(of = "id")
-@NoArgsConstructor
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class AuthorEntity {
     @Schema(description = "ID автора")

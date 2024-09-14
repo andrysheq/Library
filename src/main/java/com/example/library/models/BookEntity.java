@@ -14,9 +14,6 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class BookEntity {
     @Schema(description = "ID книги")

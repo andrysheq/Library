@@ -1,9 +1,11 @@
 package com.example.library.service;
 
 import com.example.library.dto.Author;
+import com.example.library.dto.request.Request;
+import com.example.library.dto.response.FindAuthorsResponse;
+import com.example.library.mapper.BaseMapper;
 import com.example.library.models.AuthorEntity;
 import com.example.library.service.repo.AuthorRepoService;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -14,38 +16,39 @@ import java.util.List;
 @RequiredArgsConstructor
 @Log4j2
 public class AuthorService {
-    private final EntityManager entityManager;
+    private final BaseMapper mapper;
     private final AuthorRepoService authorRepoService;
 
-    public List<AuthorEntity> getAllAuthors() {
-        return authorRepoService.findAll();
-    }
+    public Author addAuthor(Request<Author> request) {
+        Author author = request.getPayload();
 
-    public AuthorEntity getAuthor(Long id) {
-        return authorRepoService.findById(id);
-    }
-
-    //Используем для удаления связей у авторов и книг (при удалении автора, у всех книг удаляется этот автор)
-//    @Transactional
-//    public void deleteById(Long id) {
-//        List<BookEntity> allBookEntities = entityManager.createQuery("SELECT b FROM BookEntity b", BookEntity.class).getResultList();
-//
-//
-//        AuthorEntity authorEntityToRemove = entityManager.find(AuthorEntity.class, id);
-//
-//        allBookEntities.forEach(o->{
-//            o.getAuthorEntities().remove(authorEntityToRemove);
-//            entityManager.merge(o);
-//        });
-//
-//        authorRepository.deleteById(id);
-//    }
-
-    public Author updateAuthor(Author author) {
-        return authorRepoService.updateAuthor(author);
-    }
-
-    public Author addAuthor(Author author){
         return authorRepoService.saveAuthor(author);
+    }
+
+    public Author getAuthor(Long authorId) {
+        AuthorEntity authorEntity = authorRepoService.findById(authorId);
+
+        return mapper.map(authorEntity, Author.class);
+    }
+
+    public FindAuthorsResponse findAllAuthors() {
+        List<AuthorEntity> authorList = authorRepoService.findAll();
+
+        return FindAuthorsResponse.builder()
+                .data(mapper.convertList(authorList, Author.class))
+                .build();
+    }
+
+    public Author updateAuthor(Long authorId, Request<Author> request) {
+        Author author = request.getPayload();
+        AuthorEntity authorEntity = authorRepoService.findById(authorId);
+        Author oldAuthor = mapper.map(authorEntity, Author.class);
+        Author savedAuthor = authorRepoService.updateAuthor(authorEntity);
+
+        return savedAuthor;
+    }
+
+    public void deleteAuthor(Long authorId) {
+        authorRepoService.deleteById(authorId);
     }
 }
