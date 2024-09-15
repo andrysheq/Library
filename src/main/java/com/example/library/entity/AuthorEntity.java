@@ -1,6 +1,6 @@
 package com.example.library.entity;
 
-import com.example.library.dto.Gender;
+import com.example.library.dto.enums.Gender;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 @Schema(name = "Автор")
