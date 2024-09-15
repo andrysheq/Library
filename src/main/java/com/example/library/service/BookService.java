@@ -52,7 +52,9 @@ public class BookService {
         BookRecord book = request.getPayload();
         BookEntity bookEntity = bookRepoService.findById(bookId);
         bookEntity.setAuthorEntities(new HashSet<>(authorService.findAuthorsByIds(book.getAuthorIds())));
-        //work work work
+        bookEntity.setTitle(book.getTitle());
+        bookEntity.setPageAmount(book.getPageAmount());
+
         return bookRepoService.updateBook(bookEntity);
     }
 
