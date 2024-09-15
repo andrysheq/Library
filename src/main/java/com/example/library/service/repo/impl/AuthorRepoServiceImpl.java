@@ -1,8 +1,9 @@
 package com.example.library.service.repo.impl;
 
 import com.example.library.dto.Author;
+import com.example.library.dto.request.AuthorRecord;
 import com.example.library.exception.RecordNotFoundException;
-import com.example.library.models.AuthorEntity;
+import com.example.library.entity.AuthorEntity;
 import com.example.library.repos.AuthorRepository;
 import com.example.library.service.repo.AuthorRepoService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class AuthorRepoServiceImpl implements AuthorRepoService {
 
     @Override
     @Transactional
-    public Author saveAuthor(Author author) {
+    public Author saveAuthor(AuthorRecord author) {
         AuthorEntity authorEntity = mapper.map(author, AuthorEntity.class);
         return mapper.map(authorRepository.save(authorEntity), Author.class);
     }

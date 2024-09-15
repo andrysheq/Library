@@ -4,7 +4,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-@Component
 public class BaseMapper extends ModelMapper {
 
     @Override
@@ -19,6 +18,15 @@ public class BaseMapper extends ModelMapper {
         List<D> result = new ArrayList<>();
         if (inList != null && destClass != null) {
             for (S e : inList) result.add(super.map(e, destClass));
+        }
+
+        return result;
+    }
+
+    public <S, D> Set<D> convertSet(Collection<S> inSet, Class<D> destClass) {
+        Set<D> result = new HashSet<>();
+        if (inSet != null && destClass != null) {
+            for (S e : inSet) result.add(super.map(e, destClass));
         }
 
         return result;

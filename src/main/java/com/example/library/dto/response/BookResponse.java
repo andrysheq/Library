@@ -1,5 +1,6 @@
-package com.example.library.dto;
+package com.example.library.dto.response;
 
+import com.example.library.dto.Author;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,8 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Schema(name = "Книга", description = "Информация о книге")
-public class Book extends BaseDomain {
-
+public class BookResponse implements Serializable {
     @Schema(description = "Название книги")
     @NotNull
     private String title;
@@ -26,7 +26,7 @@ public class Book extends BaseDomain {
     @NotNull
     private Integer pageAmount;
 
-    @Schema(description = "ID авторов, работавших над книгой")
+    @Schema(description = "Авторы")
     @NotNull
-    private Set<Long> authorIds;
+    private Set<Author> authors;
 }

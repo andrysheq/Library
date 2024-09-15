@@ -1,7 +1,8 @@
-package com.example.library.controllers;
+package com.example.library.controller;
 
 import com.example.library.dto.Author;
 import com.example.library.dto.error.ErrorResponse;
+import com.example.library.dto.request.AuthorRecord;
 import com.example.library.dto.request.Request;
 import com.example.library.dto.response.FindAuthorsResponse;
 import com.example.library.service.AuthorService;
@@ -63,6 +64,10 @@ public class AuthorController {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @GetMapping(
+            path = AUTHORS_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<FindAuthorsResponse> getAllAuthors() {
 
         return RestUtils.responseOf(authorService::findAllAuthors);
@@ -142,7 +147,7 @@ public class AuthorController {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Author> addAuthor(
-            @Parameter(name = "Author", required = true) @Valid @RequestBody Request<Author> request) {
+            @Parameter(name = "AuthorRecord", required = true) @Valid @RequestBody Request<AuthorRecord> request) {
 
         return RestUtils.responseOf(request, authorService::addAuthor);
     }
@@ -172,6 +177,10 @@ public class AuthorController {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @DeleteMapping(
+            path = AUTHORS_ID_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Void> deleteAuthor(
             @Parameter(description = "ID автора")
             @PathVariable Long id) {
@@ -217,7 +226,7 @@ public class AuthorController {
     )
     public ResponseEntity<Author> updateAuthor(
             @PathVariable(name = "id") Long authorId,
-            @Parameter(name = "Author", required = true) @Valid @RequestBody Request<Author> request) {
+            @Parameter(name = "AuthorRecord", required = true) @Valid @RequestBody Request<AuthorRecord> request) {
 
         return RestUtils.responseOf(request, req -> authorService.updateAuthor(authorId, req));
     }

@@ -1,23 +1,28 @@
-package com.example.library.dto;
+package com.example.library.entity;
 
+import com.example.library.dto.Gender;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
+@Schema(name = "Автор")
+@Entity
+@Table(name = "author")
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@Schema(name = "Автор", description = "Информация о авторе")
-public class Author extends BaseDomain {
+@EqualsAndHashCode(of = "id", callSuper = false)
+@RequiredArgsConstructor
+public class AuthorEntity extends BaseEntity {
+    @Schema(description = "ID автора")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Schema(description = "Имя автора")
     @NotNull
@@ -32,12 +37,12 @@ public class Author extends BaseDomain {
     private String middleName;
 
     @Schema(description = "Пол автора")
-    @Enumerated()
+    @Enumerated(EnumType.STRING)
     @NotNull
     private Gender gender;
 
     @NotNull
     @JsonFormat(pattern = "dd.MM.yyyy", shape = JsonFormat.Shape.STRING)
-    @Schema(name = "birthDate", description = "Дата рождения автора", requiredMode = Schema.RequiredMode.REQUIRED, pattern = "dd.MM.yyyy", example = "18.08.2023")
+    @Schema(name = "endDate", description = "Дата рождения автора", requiredMode = Schema.RequiredMode.REQUIRED, pattern = "dd.MM.yyyy", example = "18.08.2023")
     private LocalDate birthDate;
 }

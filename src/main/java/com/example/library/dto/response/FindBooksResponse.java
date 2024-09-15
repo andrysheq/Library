@@ -7,11 +7,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
 @SuppressWarnings("unchecked")
-public class FindBooksResponse extends FindCollectionResponse<Book> {
+public class FindBooksResponse extends FindCollectionResponse<Book> implements Serializable {
 }

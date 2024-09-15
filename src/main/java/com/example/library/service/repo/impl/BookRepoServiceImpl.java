@@ -1,26 +1,20 @@
 package com.example.library.service.repo.impl;
 
-import com.example.library.dto.Author;
 import com.example.library.dto.Book;
+import com.example.library.dto.request.BookRecord;
 import com.example.library.exception.RecordNotFoundException;
-import com.example.library.models.AuthorEntity;
-import com.example.library.models.BookEntity;
+import com.example.library.entity.AuthorEntity;
+import com.example.library.entity.BookEntity;
 import com.example.library.repos.BookRepository;
+import com.example.library.service.AuthorService;
 import com.example.library.service.repo.AuthorRepoService;
 import com.example.library.service.repo.BookRepoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +27,7 @@ public class BookRepoServiceImpl implements BookRepoService {
 
     private final BookRepository bookRepository;
     private final ModelMapper mapper;
-    private final AuthorRepoService authorRepoService;
+    private final AuthorService authorService;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,10 +39,9 @@ public class BookRepoServiceImpl implements BookRepoService {
 
     @Override
     @Transactional
-    public Book saveBook(Book book) {
-          List<AuthorEntity> authors = authorRepoService.findByIds(book.getAuthorIds());
+    public Book saveBook(BookRecord book) {
           BookEntity bookEntity = mapper.map(book, BookEntity.class);
-          bookEntity.setAuthorEntities(authors.stream().collect(Collectors.toSet()));
+          bookEntity.setAuthorEntities(new HashSet<>(authorService.findAuthorsByIds(book.getAuthorIds())));
           return mapper.map(bookRepository.save(bookEntity), Book.class);
     }
 

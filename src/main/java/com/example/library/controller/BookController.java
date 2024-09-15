@@ -1,13 +1,11 @@
-package com.example.library.controllers;
+package com.example.library.controller;
 
-import com.example.library.dto.Author;
 import com.example.library.dto.Book;
 import com.example.library.dto.error.ErrorResponse;
+import com.example.library.dto.request.BookRecord;
 import com.example.library.dto.request.Request;
-import com.example.library.dto.response.FindAuthorsResponse;
+import com.example.library.dto.response.BookResponse;
 import com.example.library.dto.response.FindBooksResponse;
-import com.example.library.models.BookEntity;
-import com.example.library.service.AuthorService;
 import com.example.library.service.BookService;
 import com.example.library.utils.RestUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,13 +23,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
-import java.util.List;
-
 @RestController
 @Log4j2
 @RequiredArgsConstructor
-@RequestMapping("/books")
+@RequestMapping()
 @Tag(
     name = "Контроллер для работы с книгами",
     description = "Все методы для работы с книгами"
@@ -70,6 +65,10 @@ public class BookController {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @GetMapping(
+            path = BOOKS_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<FindBooksResponse> getAllBooks() {
 
         return RestUtils.responseOf(bookService::findAllBooks);
@@ -149,7 +148,7 @@ public class BookController {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Book> addBook(
-            @Parameter(name = "Book", required = true) @Valid @RequestBody Request<Book> request) {
+            @Parameter(name = "Book", required = true) @Valid @RequestBody Request<BookRecord> request) {
 
         return RestUtils.responseOf(request, bookService::addBook);
     }
@@ -179,6 +178,10 @@ public class BookController {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @DeleteMapping(
+            path = BOOKS_ID_URL,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Void> deleteBook(
             @Parameter(description = "ID книги")
             @PathVariable Long id) {
@@ -224,7 +227,7 @@ public class BookController {
     )
     public ResponseEntity<Book> updateBook(
             @PathVariable(name = "id") Long bookId,
-            @Parameter(name = "Book", required = true) @Valid @RequestBody Request<Book> request) {
+            @Parameter(name = "Book", required = true) @Valid @RequestBody Request<BookRecord> request) {
 
         return RestUtils.responseOf(request, req -> bookService.updateBook(bookId, req));
     }
