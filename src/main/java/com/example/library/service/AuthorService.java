@@ -9,6 +9,9 @@ import com.example.library.entity.AuthorEntity;
 import com.example.library.service.repo.AuthorRepoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +22,15 @@ import java.util.List;
 public class AuthorService {
     private final BaseMapper mapper;
     private final AuthorRepoService authorRepoService;
-
+    @CachePut(value = "authorById", key = "#result.id")
     public Author addAuthor(Request<AuthorRecord> request) {
         AuthorRecord author = request.getPayload();
 
         return authorRepoService.saveAuthor(author);
     }
-
-    public Author getAuthor(Long authorId) {
-        AuthorEntity authorEntity = authorRepoService.findById(authorId);
+    @Cacheable(value = "authorById", key = "#id")
+    public Author getAuthor(Long id) {
+        AuthorEntity authorEntity = authorRepoService.findById(id);
 
         return mapper.map(authorEntity, Author.class);
     }
@@ -43,10 +46,10 @@ public class AuthorService {
     public List<AuthorEntity> findAuthorsByIds(Iterable<Long> ids) {
         return authorRepoService.findByIds(ids);
     }
-
-    public Author updateAuthor(Long authorId, Request<AuthorRecord> request) {
+    @CachePut(value = "authorById", key = "#id")
+    public Author updateAuthor(Long id, Request<AuthorRecord> request) {
         AuthorRecord author = request.getPayload();
-        AuthorEntity authorEntity = authorRepoService.findById(authorId);
+        AuthorEntity authorEntity = authorRepoService.findById(id);
         authorEntity.setBirthDate(author.getBirthDate());
         authorEntity.setGender(author.getGender());
         authorEntity.setFirstName(author.getFirstName());
@@ -55,8 +58,8 @@ public class AuthorService {
 
         return authorRepoService.updateAuthor(authorEntity);
     }
-
-    public void deleteAuthor(Long authorId) {
-        authorRepoService.deleteById(authorId);
+    @CacheEvict(value = "authorById", key = "#id")
+    public void deleteAuthor(Long id) {
+        authorRepoService.deleteById(id);
     }
 }

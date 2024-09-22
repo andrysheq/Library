@@ -25,7 +25,6 @@ spring:
           sharedCache:
             mode: UNSPECIFIED
     open-in-view: false
-
   flyway:
     enabled: ${FLYWAY_ENABLED:true}
     clean-disabled: false
