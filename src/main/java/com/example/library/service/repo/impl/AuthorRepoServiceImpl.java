@@ -4,15 +4,11 @@ import com.example.library.dto.Author;
 import com.example.library.dto.request.AuthorRecord;
 import com.example.library.exception.RecordNotFoundException;
 import com.example.library.entity.AuthorEntity;
-import com.example.library.repos.AuthorRepository;
+import com.example.library.repository.AuthorRepository;
 import com.example.library.service.repo.AuthorRepoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +23,6 @@ public class AuthorRepoServiceImpl implements AuthorRepoService {
     private final ModelMapper mapper;
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "authorById", key = "#id")
     public AuthorEntity findById(Long id) {
         Optional<AuthorEntity> authorOpt = authorRepository.findById(id);
 
@@ -36,7 +31,6 @@ public class AuthorRepoServiceImpl implements AuthorRepoService {
 
     @Override
     @Transactional
-    @CachePut(value = "authorById", key = "#result.id")
     public Author saveAuthor(AuthorRecord author) {
         AuthorEntity authorEntity = mapper.map(author, AuthorEntity.class);
         return mapper.map(authorRepository.save(authorEntity), Author.class);
@@ -44,7 +38,6 @@ public class AuthorRepoServiceImpl implements AuthorRepoService {
 
     @Override
     @Transactional
-    @CachePut(value = "authorById", key = "#result.id")
     public Author updateAuthor(AuthorEntity authorEntity) {
         return mapper.map(authorRepository.saveAndFlush(authorEntity), Author.class);
     }
@@ -63,7 +56,6 @@ public class AuthorRepoServiceImpl implements AuthorRepoService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "authorById", key = "#id")
     public void deleteById(Long id) {
         authorRepository.deleteById(id);
     }
