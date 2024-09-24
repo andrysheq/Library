@@ -10,6 +10,9 @@ import com.example.library.service.repo.BookRepoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class BookRepoServiceImpl implements BookRepoService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "bookById", key = "#id")
     public BookEntity findById(Long id) {
         Optional<BookEntity> bookOpt = bookRepository.findById(id);
 
@@ -36,6 +40,7 @@ public class BookRepoServiceImpl implements BookRepoService {
 
     @Override
     @Transactional
+    @CachePut(value = "bookById", key = "#result.id")
     public Book saveBook(BookRecord book) {
           BookEntity bookEntity = mapper.map(book, BookEntity.class);
           bookEntity.setAuthorEntities(new HashSet<>(authorService.findAuthorsByIds(book.getAuthorIds())));
@@ -44,6 +49,7 @@ public class BookRepoServiceImpl implements BookRepoService {
 
     @Override
     @Transactional
+    @CachePut(value = "bookById", key = "#bookEntity.id")
     public Book updateBook(BookEntity bookEntity) {
         return mapper.map(bookRepository.saveAndFlush(bookEntity), Book.class);
     }
@@ -56,6 +62,7 @@ public class BookRepoServiceImpl implements BookRepoService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "bookById", key = "#id")
     public void deleteById(Long id) {
         bookRepository.deleteById(id);
     }

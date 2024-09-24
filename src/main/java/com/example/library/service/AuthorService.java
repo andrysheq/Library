@@ -22,13 +22,13 @@ import java.util.List;
 public class AuthorService {
     private final BaseMapper mapper;
     private final AuthorRepoService authorRepoService;
-    @CachePut(value = "authorById", key = "#result.id")
+
     public Author addAuthor(Request<AuthorRecord> request) {
         AuthorRecord author = request.getPayload();
 
         return authorRepoService.saveAuthor(author);
     }
-    @Cacheable(value = "authorById", key = "#id")
+
     public Author getAuthor(Long id) {
         AuthorEntity authorEntity = authorRepoService.findById(id);
 
@@ -46,7 +46,7 @@ public class AuthorService {
     public List<AuthorEntity> findAuthorsByIds(Iterable<Long> ids) {
         return authorRepoService.findByIds(ids);
     }
-    @CachePut(value = "authorById", key = "#id")
+
     public Author updateAuthor(Long id, Request<AuthorRecord> request) {
         AuthorRecord author = request.getPayload();
         AuthorEntity authorEntity = authorRepoService.findById(id);
@@ -58,7 +58,7 @@ public class AuthorService {
 
         return authorRepoService.updateAuthor(authorEntity);
     }
-    @CacheEvict(value = "authorById", key = "#id")
+
     public void deleteAuthor(Long id) {
         authorRepoService.deleteById(id);
     }

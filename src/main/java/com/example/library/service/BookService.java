@@ -29,13 +29,13 @@ public class BookService {
     private final BaseMapper mapper;
     private final BookRepoService bookRepoService;
     private final AuthorService authorService;
-    @CachePut(value = "bookById", key = "#result.id")
+
     public Book addBook(Request<BookRecord> request) {
         BookRecord book = request.getPayload();
 
         return bookRepoService.saveBook(book);
     }
-    @Cacheable(value = "bookById", key = "#id")
+
     public Book getBook(Long id) {
         BookEntity bookEntity = bookRepoService.findById(id);;
 
@@ -49,7 +49,7 @@ public class BookService {
                 .data(mapper.convertList(bookList, Book.class))
                 .build();
     }
-    @CachePut(value = "bookById", key = "#id")
+
     public Book updateBook(Long id, Request<BookRecord> request) {
         BookRecord book = request.getPayload();
         BookEntity bookEntity = bookRepoService.findById(id);
@@ -59,7 +59,7 @@ public class BookService {
 
         return bookRepoService.updateBook(bookEntity);
     }
-    @CacheEvict(value = "bookById", key = "#id")
+
     public void deleteBook(Long id) {
         bookRepoService.deleteById(id);
     }
