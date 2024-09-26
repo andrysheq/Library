@@ -41,9 +41,8 @@ public interface BookRepository extends BaseRepository<BookEntity> {
     void saveBookAuthor(@Param("bookId") Long bookId, @Param("authorId") Long authorId);
 
     @Transactional
-    @Modifying
-    @Query("delete from book_author ba WHERE ba.book_id = :bookId")
-    void deleteByBookId(@Param("bookId") Long bookId);
+    @Query(value = "DELETE FROM book_author WHERE book_id = :bookId", nativeQuery = true)
+    void deleteBookAuthorsByBookId(@Param("bookId") Long bookId);
 
 
 }

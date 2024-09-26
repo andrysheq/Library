@@ -44,14 +44,7 @@ public class BookRepoServiceImpl implements BookRepoService {
     @CachePut(value = "bookById", key = "#result.id")
     public BookEntity saveBook(BookRecord book) {
         BookEntity bookEntity = mapper.map(book, BookEntity.class);
-        Long BookId = bookEntity.getId();
 
-        Set<Long> authorIds = book.getAuthorIds();
-        if (authorIds != null && !authorIds.isEmpty()) {
-            for (Long authorId : authorIds) {
-                bookRepository.saveBookAuthor(BookId, authorId);
-            }
-        }
         return bookRepository.save(bookEntity);
     }
 

@@ -35,8 +35,16 @@ public class BookService {
 
     public Book addBook(Request<BookRecord> request) {
         BookRecord book = request.getPayload();
+        BookEntity savedBook = bookRepoService.saveBook(book);
 
-        return mapper.map(bookRepoService.saveBook(book), Book.class);
+        Set<Long> authorIds = book.getAuthorIds();
+        if (authorIds != null && !authorIds.isEmpty()) {
+            for (Long authorId : authorIds) {
+                bookRepository.saveBookAuthor(savedBook.getId(), authorId);
+            }
+        }
+
+        return mapper.map(savedBook, Book.class);
     }
 
     public Book getBook(Long id) {
@@ -59,7 +67,7 @@ public class BookService {
         bookEntity.setTitle(book.getTitle());
         bookEntity.setPageAmount(book.getPageAmount());
 
-        bookRepository.deleteByBookId(id);
+        bookRepository.deleteBookAuthorsByBookId(id);
 
         Set<Long> authorIds = request.getPayload().getAuthorIds();
         if (authorIds != null && !authorIds.isEmpty()) {

@@ -14,10 +14,11 @@ public interface AuthorRepository extends BaseRepository<AuthorEntity> {
     @Transactional
     AuthorEntity saveAndFlush(AuthorEntity authorEntity);
     @Transactional(readOnly = true)
-    @Query("SELECT a FROM AuthorEntity a WHERE a.id IN (SELECT ba.authorId FROM book_author ba WHERE ba.bookId = :bookId)")
+    @Query(value = "SELECT a.* FROM author a INNER JOIN book_author ba ON a.id = ba.author_id WHERE ba.book_id = :bookId", nativeQuery = true)
     List<AuthorEntity> findAuthorsByBookId(@Param("bookId") Long bookId);
 
+
     @Transactional(readOnly = true)
-    @Query("SELECT ba.authorId FROM book_author ba WHERE ba.bookId = :bookId")
+    @Query(value = "SELECT author_id FROM book_author WHERE book_id = :bookId", nativeQuery = true)
     Set<Long> findAuthorIdsByBookId(@Param("bookId") Long bookId);
 }
