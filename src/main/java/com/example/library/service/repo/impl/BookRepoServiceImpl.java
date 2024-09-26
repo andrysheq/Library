@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -41,17 +42,24 @@ public class BookRepoServiceImpl implements BookRepoService {
     @Override
     @Transactional
     @CachePut(value = "bookById", key = "#result.id")
-    public Book saveBook(BookRecord book) {
-          BookEntity bookEntity = mapper.map(book, BookEntity.class);
-          bookEntity.setAuthorEntities(new HashSet<>(authorService.findAuthorsByIds(book.getAuthorIds())));
-          return mapper.map(bookRepository.save(bookEntity), Book.class);
+    public BookEntity saveBook(BookRecord book) {
+        BookEntity bookEntity = mapper.map(book, BookEntity.class);
+        Long BookId = bookEntity.getId();
+
+        Set<Long> authorIds = book.getAuthorIds();
+        if (authorIds != null && !authorIds.isEmpty()) {
+            for (Long authorId : authorIds) {
+                bookRepository.saveBookAuthor(BookId, authorId);
+            }
+        }
+        return bookRepository.save(bookEntity);
     }
 
     @Override
     @Transactional
     @CachePut(value = "bookById", key = "#bookEntity.id")
-    public Book updateBook(BookEntity bookEntity) {
-        return mapper.map(bookRepository.saveAndFlush(bookEntity), Book.class);
+    public BookEntity updateBook(BookEntity bookEntity) {
+        return bookRepository.saveAndFlush(bookEntity);
     }
 
     @Override

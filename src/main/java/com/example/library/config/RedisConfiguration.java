@@ -1,4 +1,6 @@
-//package com.example.library.config;
+package com.example.library.config;
+
+//import org.springframework.context.annotation.Configuration;
 //
 //import com.fasterxml.jackson.annotation.JsonTypeInfo;
 //import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -26,7 +28,7 @@
 //@AutoConfigureAfter(RedisAutoConfiguration.class)
 //@EnableCaching
 //@RequiredArgsConstructor
-//public class RedisConfiguration {
+public class RedisConfiguration {
 //
 //    @Bean
 //    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
@@ -74,6 +76,6 @@
 //        template.afterPropertiesSet();
 //        return template;
 //    }
-//}
+}
 //
 //

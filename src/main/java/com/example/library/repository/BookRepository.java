@@ -1,10 +1,13 @@
 package com.example.library.repository;
 
+import com.example.library.entity.AuthorEntity;
 import com.example.library.entity.BookEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,26 +22,28 @@ public interface BookRepository extends BaseRepository<BookEntity> {
 
     @Override
     @Transactional(readOnly = true)
-    @Query("select b from BookEntity b left join fetch b.authorEntities")
+    @Query("select b from BookEntity b")
     List<BookEntity> findAll();
 
     @Override
     @Transactional(readOnly = true)
-    @Query("select b from BookEntity b left join fetch b.authorEntities")
-    List<BookEntity> findAll(Sort sort);
-
-    @Override
-    @Transactional(readOnly = true)
-    @Query("select b from BookEntity b left join fetch b.authorEntities where b.id in ?1")
-    List<BookEntity> findAllById(Iterable<Long> iterable);
-
-    @Override
-    @Transactional(readOnly = true)
-    @Query("select b from BookEntity b left join fetch b.authorEntities")
+    @Query("select b from BookEntity b")
     Page<BookEntity> findAll(Pageable pageable);
 
     @Override
     @Transactional(readOnly = true)
-    @Query("select b from BookEntity b left join fetch b.authorEntities where b.id = ?1")
+    @Query("select b from BookEntity b where b.id = ?1")
     Optional<BookEntity> findById(Long id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "insert into book_author (book_id, author_id) values (:bookId, :authorId)", nativeQuery = true)
+    void saveBookAuthor(@Param("bookId") Long bookId, @Param("authorId") Long authorId);
+
+    @Transactional
+    @Modifying
+    @Query("delete from book_author ba WHERE ba.book_id = :bookId")
+    void deleteByBookId(@Param("bookId") Long bookId);
+
+
 }

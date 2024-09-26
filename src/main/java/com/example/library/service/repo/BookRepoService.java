@@ -12,9 +12,9 @@ public interface BookRepoService {
 
     BookEntity findById(Long id);
 
-    Book saveBook(BookRecord book);
+    BookEntity saveBook(BookRecord book);
 
-    Book updateBook(BookEntity bookEntity);
+    BookEntity updateBook(BookEntity bookEntity);
 
     List<BookEntity> findAll();
 

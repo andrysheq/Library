@@ -26,7 +26,7 @@ public class AuthorService {
     public Author addAuthor(Request<AuthorRecord> request) {
         AuthorRecord author = request.getPayload();
 
-        return authorRepoService.saveAuthor(author);
+        return mapper.map(authorRepoService.saveAuthor(author), Author.class);
     }
 
     public Author getAuthor(Long id) {
@@ -56,7 +56,7 @@ public class AuthorService {
         authorEntity.setLastName(author.getLastName());
         authorEntity.setMiddleName(author.getMiddleName());
 
-        return authorRepoService.updateAuthor(authorEntity);
+        return mapper.map(authorRepoService.updateAuthor(authorEntity), Author.class);
     }
 
     public void deleteAuthor(Long id) {

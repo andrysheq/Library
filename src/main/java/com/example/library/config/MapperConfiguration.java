@@ -6,6 +6,7 @@ import com.example.library.dto.response.BookResponse;
 import com.example.library.entity.AuthorEntity;
 import com.example.library.entity.BookEntity;
 import com.example.library.mapper.BaseMapper;
+import com.example.library.repository.AuthorRepository;
 import com.example.library.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.convention.MatchingStrategies;
@@ -18,8 +19,10 @@ import java.util.stream.Collectors;
 
 import static org.modelmapper.config.Configuration.AccessLevel.PUBLIC;
 
+@RequiredArgsConstructor
 @Configuration
 public class MapperConfiguration {
+    private final AuthorRepository authorRepository;
     @Bean
     public BaseMapper modelMapper() {
         BaseMapper mapper = new BaseMapper();
@@ -46,7 +49,8 @@ public class MapperConfiguration {
                             final BookEntity source = ctx.getSource();
                             final BookResponse destination = ctx.getDestination();
 
-                            destination.setAuthors(mapper.convertSet(source.getAuthorEntities(), Author.class));
+                            destination.setAuthors(mapper.convertSet(
+                                    authorRepository.findAuthorsByBookId(source.getId()), Author.class));
 
                             return ctx.getDestination();
                         });
@@ -60,9 +64,7 @@ public class MapperConfiguration {
                             final BookEntity source = ctx.getSource();
                             final Book destination = ctx.getDestination();
 
-                            destination.setAuthorIds(source.getAuthorEntities().stream().map(AuthorEntity::getId).
-                                    collect(Collectors.toSet()));
-
+                            destination.setAuthorIds(authorRepository.findAuthorIdsByBookId(source.getId()));
                             return ctx.getDestination();
                         });
     }

@@ -29,12 +29,12 @@ public class BookEntity extends BaseEntity {
     @NotNull
     private Integer pageAmount;
 
-    @Schema(description = "Авторы книги")
-    @ManyToMany()
-    @JoinTable(
-            name = "book_author",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id")
-    )
-    private Set<AuthorEntity> authorEntities;
+//    @Schema(description = "Авторы книги")
+//    @ManyToMany()
+//    @JoinTable(
+//            name = "book_author",
+//            joinColumns = @JoinColumn(name = "book_id"),
+//            inverseJoinColumns = @JoinColumn(name = "author_id")
+//    )
+//    private Set<AuthorEntity> authorEntities;
 }

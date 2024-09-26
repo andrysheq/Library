@@ -17,31 +17,6 @@ import java.util.Optional;
 public interface BaseRepository<T extends BaseEntity> extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
 
     @Override
-    @Transactional(readOnly = true)
-    @Query("select e from #{#entityName} e")
-    List<T> findAll();
-
-    @Override
-    @Transactional(readOnly = true)
-    @Query("select e from #{#entityName} e")
-    List<T> findAll(Sort sort);
-
-    @Override
-    @Transactional(readOnly = true)
-    @Query("select e from #{#entityName} e where e.id in ?1")
-    List<T> findAllById(Iterable<Long> iterable);
-
-    @Override
-    @Transactional(readOnly = true)
-    @Query("select e from #{#entityName} e")
-    Page<T> findAll(Pageable pageable);
-
-    @Override
-    @Transactional(readOnly = true)
-    @Query("select e from #{#entityName} e where e.id = ?1")
-    Optional<T> findById(Long id);
-
-    @Override
     default boolean existsById(Long id) {
         return findById(id).isPresent();
     }

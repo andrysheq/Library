@@ -36,16 +36,16 @@ public class AuthorRepoServiceImpl implements AuthorRepoService {
     @Override
     @Transactional
     @CachePut(value = "authorById", key = "#result.id")
-    public Author saveAuthor(AuthorRecord author) {
+    public AuthorEntity saveAuthor(AuthorRecord author) {
         AuthorEntity authorEntity = mapper.map(author, AuthorEntity.class);
-        return mapper.map(authorRepository.save(authorEntity), Author.class);
+        return authorRepository.save(authorEntity);
     }
 
     @Override
     @Transactional
     @CachePut(value = "authorById", key = "#authorEntity.id")
-    public Author updateAuthor(AuthorEntity authorEntity) {
-        return mapper.map(authorRepository.saveAndFlush(authorEntity), Author.class);
+    public AuthorEntity updateAuthor(AuthorEntity authorEntity) {
+        return authorRepository.saveAndFlush(authorEntity);
     }
 
     @Override
